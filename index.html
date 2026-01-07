@@ -122,10 +122,10 @@
         flex: 0 0 auto;
       }
       .logoWrap img {
-        width: 34px;
-        height: 34px;
-        object-fit: contain;
-        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 12px;
       }
 
       .brand h1 {
@@ -617,7 +617,7 @@
       // 2) Lalu set LOGO_URL = "./assets/logo-pegadaian.png"
       //
       // NOTE: Jangan ambil random URL internet kalau takut kena CORS/hotlink.
-      const LOGO_URL = "./assets/logo-pegadaian.png";
+      const LOGO_URL = "./assets/asisten.png";
 
       const chatBody = document.getElementById("chatBody");
       const input = document.getElementById("input");
@@ -628,11 +628,9 @@
       const brandLogo = document.getElementById("brandLogo");
       brandLogo.src = LOGO_URL;
       brandLogo.onerror = () => {
-        // fallback: kalau logo belum ada, tampilkan inisial
         brandLogo.style.display = "none";
         const wrap = brandLogo.parentElement;
-        wrap.innerHTML =
-          "<span style='font-weight:900;color:rgba(11,43,26,.75)'>PG</span>";
+        wrap.innerHTML = "<span style='font-size:18px'>PGD</span>";
       };
 
       // Fallback "demo response" (biar UI tetap hidup walau backend down)
