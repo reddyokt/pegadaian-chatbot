@@ -1,0 +1,919 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Pegadaian Chatbot</title>
+
+    <style>
+      :root {
+        /* Pegadaian theme (Green + White) */
+        --bg: #f6fff9;
+        --bg2: #eafff1;
+        --panel: rgba(255, 255, 255, 0.92);
+        --panel2: rgba(255, 255, 255, 0.85);
+        --text: #0b2b1a;
+        --muted: rgba(11, 43, 26, 0.72);
+        --muted2: rgba(11, 43, 26, 0.55);
+        --border: rgba(11, 43, 26, 0.12);
+        --shadow: 0 18px 50px rgba(12, 60, 34, 0.18);
+        --radius: 18px;
+
+        --brand: #00a651; /* Pegadaian green-ish */
+        --brand2: #0b7d3b; /* darker green */
+        --brand3: #c8f7dc; /* light mint */
+
+        --user: rgba(0, 166, 81, 0.14);
+        --bot: rgba(11, 125, 59, 0.1);
+
+        --chip: rgba(0, 166, 81, 0.1);
+        --chipHover: rgba(0, 166, 81, 0.16);
+
+        --danger: #ff4d4d;
+        --ok: #16a34a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+          Arial, "Noto Sans", "Helvetica Neue";
+        background: radial-gradient(
+            1100px 600px at 15% 10%,
+            rgba(0, 166, 81, 0.12),
+            transparent 55%
+          ),
+          radial-gradient(
+            900px 560px at 85% 15%,
+            rgba(11, 125, 59, 0.1),
+            transparent 60%
+          ),
+          radial-gradient(
+            700px 500px at 50% 92%,
+            rgba(0, 166, 81, 0.1),
+            transparent 60%
+          ),
+          linear-gradient(180deg, var(--bg2), var(--bg));
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .app {
+        width: min(980px, 100%);
+        height: min(720px, 92vh);
+        display: grid;
+        grid-template-columns: 340px 1fr;
+        gap: 14px;
+      }
+
+      /* Sidebar */
+      .side {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      .sideHeader {
+        padding: 18px 18px 12px 18px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .brand {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      /* Logo box */
+      .logoWrap {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        background: linear-gradient(
+          135deg,
+          rgba(0, 166, 81, 0.18),
+          rgba(11, 125, 59, 0.12)
+        );
+        border: 1px solid rgba(0, 166, 81, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        box-shadow: 0 10px 24px rgba(12, 60, 34, 0.12);
+        flex: 0 0 auto;
+      }
+      .logoWrap img {
+        width: 34px;
+        height: 34px;
+        object-fit: contain;
+        display: block;
+      }
+
+      .brand h1 {
+        font-size: 15px;
+        margin: 0;
+        line-height: 1.15;
+      }
+      .brand p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 2px;
+      }
+
+      .pill {
+        font-size: 12px;
+        padding: 6px 10px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        color: var(--muted);
+        background: rgba(0, 166, 81, 0.06);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        user-select: none;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--ok);
+        box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
+      }
+
+      .sideBody {
+        padding: 14px 18px 18px 18px;
+        overflow: auto;
+        min-height: 0;
+      }
+      .block {
+        background: rgba(0, 166, 81, 0.04);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 14px;
+        margin-bottom: 12px;
+      }
+      .block h3 {
+        margin: 0 0 8px 0;
+        font-size: 13px;
+        letter-spacing: 0.2px;
+      }
+      .block p {
+        margin: 0;
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+      .chip {
+        border: 1px solid rgba(0, 166, 81, 0.22);
+        background: var(--chip);
+        color: var(--text);
+        padding: 8px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: 0.15s ease;
+        user-select: none;
+      }
+      .chip:hover {
+        background: var(--chipHover);
+        transform: translateY(-1px);
+      }
+      .chip:active {
+        transform: translateY(0px);
+      }
+
+      .hint {
+        margin-top: 10px;
+        font-size: 12px;
+        color: var(--muted2);
+        line-height: 1.45;
+      }
+
+      /* Chat panel */
+      .chat {
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+      .chatHeader {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        background: linear-gradient(
+          180deg,
+          rgba(0, 166, 81, 0.06),
+          rgba(255, 255, 255, 0)
+        );
+      }
+      .chatTitle {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .chatTitle strong {
+        font-size: 14px;
+      }
+      .chatTitle span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .toolbar {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .btn {
+        border: 1px solid rgba(0, 166, 81, 0.22);
+        background: rgba(0, 166, 81, 0.06);
+        color: var(--text);
+        padding: 8px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: 0.15s ease;
+        user-select: none;
+      }
+      .btn:hover {
+        background: rgba(0, 166, 81, 0.1);
+        transform: translateY(-1px);
+      }
+      .btn:active {
+        transform: translateY(0);
+      }
+      .btn.danger {
+        border-color: rgba(255, 77, 77, 0.35);
+        background: rgba(255, 77, 77, 0.06);
+        color: rgba(0, 0, 0, 0.8);
+      }
+      .btn.danger:hover {
+        background: rgba(255, 77, 77, 0.12);
+      }
+
+      .chatBody {
+        padding: 14px 14px 6px 14px;
+        overflow: auto;
+        min-height: 0;
+        scroll-behavior: smooth;
+        background: radial-gradient(
+            700px 300px at 40% 20%,
+            rgba(0, 166, 81, 0.06),
+            transparent 55%
+          ),
+          radial-gradient(
+            700px 300px at 70% 80%,
+            rgba(11, 125, 59, 0.06),
+            transparent 55%
+          );
+      }
+
+      .msg {
+        display: flex;
+        gap: 10px;
+        margin: 10px 0;
+        align-items: flex-end;
+      }
+      .avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 12px;
+        background: rgba(0, 166, 81, 0.1);
+        border: 1px solid rgba(0, 166, 81, 0.22);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        color: rgba(11, 43, 26, 0.75);
+        user-select: none;
+        flex: 0 0 auto;
+        font-weight: 700;
+      }
+
+      .bubble {
+        max-width: 72%;
+        padding: 12px 12px;
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.88);
+        line-height: 1.45;
+        font-size: 13px;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+      }
+
+      .meta {
+        margin-top: 6px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        color: var(--muted2);
+        font-size: 11px;
+        user-select: none;
+      }
+      .badge {
+        border: 1px solid rgba(0, 166, 81, 0.22);
+        background: rgba(0, 166, 81, 0.06);
+        padding: 2px 8px;
+        border-radius: 999px;
+        color: rgba(11, 43, 26, 0.85);
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .action {
+        cursor: pointer;
+        padding: 3px 6px;
+        border-radius: 10px;
+        border: 1px solid transparent;
+        color: var(--muted);
+      }
+      .action:hover {
+        border-color: rgba(0, 166, 81, 0.22);
+        background: rgba(0, 166, 81, 0.06);
+        color: var(--text);
+      }
+
+      .me {
+        flex-direction: row-reverse;
+      }
+      .me .avatar {
+        opacity: 0;
+        width: 0;
+        border: 0;
+        margin: 0;
+      }
+      .me .bubble {
+        background: var(--user);
+        border-color: rgba(0, 166, 81, 0.22);
+      }
+
+      .bot .bubble {
+        background: rgba(255, 255, 255, 0.9);
+        border-color: rgba(11, 125, 59, 0.2);
+      }
+
+      /* typing indicator */
+      .typing {
+        display: inline-flex;
+        gap: 4px;
+        padding: 4px 2px;
+        align-items: center;
+      }
+      .typing i {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(11, 43, 26, 0.55);
+        opacity: 0.6;
+        animation: bounce 1.1s infinite ease-in-out;
+      }
+      .typing i:nth-child(2) {
+        animation-delay: 0.15s;
+      }
+      .typing i:nth-child(3) {
+        animation-delay: 0.3s;
+      }
+      @keyframes bounce {
+        0%,
+        80%,
+        100% {
+          transform: translateY(0);
+          opacity: 0.45;
+        }
+        40% {
+          transform: translateY(-5px);
+          opacity: 1;
+        }
+      }
+
+      /* Composer */
+      .composer {
+        padding: 10px 12px 12px 12px;
+        border-top: 1px solid var(--border);
+        display: flex;
+        gap: 10px;
+        align-items: flex-end;
+        background: linear-gradient(
+          to bottom,
+          transparent,
+          rgba(0, 166, 81, 0.04)
+        );
+      }
+      .inputWrap {
+        flex: 1;
+        border: 1px solid rgba(0, 166, 81, 0.2);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 10px 10px;
+      }
+      textarea {
+        width: 100%;
+        border: 0;
+        outline: none;
+        resize: none;
+        background: transparent;
+        color: var(--text);
+        font-size: 13px;
+        line-height: 1.35;
+        max-height: 140px;
+        min-height: 40px;
+      }
+      textarea::placeholder {
+        color: rgba(11, 43, 26, 0.42);
+      }
+
+      .send {
+        border: 1px solid rgba(0, 166, 81, 0.35);
+        background: linear-gradient(
+          135deg,
+          rgba(0, 166, 81, 0.18),
+          rgba(11, 125, 59, 0.12)
+        );
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 16px;
+        cursor: pointer;
+        user-select: none;
+        transition: 0.15s ease;
+        font-size: 13px;
+        min-width: 92px;
+        text-align: center;
+        font-weight: 700;
+      }
+      .send:hover {
+        transform: translateY(-1px);
+      }
+      .send:active {
+        transform: translateY(0);
+      }
+      .send[disabled] {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+
+      /* Mobile */
+      @media (max-width: 920px) {
+        .app {
+          grid-template-columns: 1fr;
+          height: 92vh;
+        }
+        .side {
+          display: none;
+        }
+        .bubble {
+          max-width: 86%;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="app">
+      <!-- Sidebar -->
+      <aside class="side">
+        <div class="sideHeader">
+          <div class="brand">
+            <div class="logoWrap" aria-hidden="true">
+              <img id="brandLogo" alt="Logo Pegadaian" />
+            </div>
+            <div>
+              <h1>Asisten Pegadaian</h1>
+              <p>Layanan informasi • v1</p>
+            </div>
+          </div>
+          <div class="pill"><span class="dot"></span> Online</div>
+        </div>
+
+        <div class="sideBody">
+          <div class="block">
+            <h3>Cara pakai</h3>
+            <p>
+              Tanya pakai bahasa santai: “cara gadai emas?”, “tabungan emas itu
+              apa?”, “cara tebus barang gadai?”
+            </p>
+
+            <div class="chips" id="chips">
+              <div class="chip" data-q="Assalamualaikum">Salam</div>
+              <div class="chip" data-q="Bagaimana cara gadai emas?">
+                Gadai Emas
+              </div>
+              <div class="chip" data-q="Syarat gadai apa saja?">Syarat</div>
+              <div class="chip" data-q="Bagaimana cara tebus barang gadai?">
+                Tebus
+              </div>
+              <div class="chip" data-q="Bagaimana cara perpanjang gadai?">
+                Perpanjang
+              </div>
+              <div class="chip" data-q="Apa itu Tabungan Emas?">
+                Tabungan Emas
+              </div>
+              <div class="chip" data-q="Bagaimana cara cicil emas?">
+                Cicil Emas
+              </div>
+              <div class="chip" data-q="Call center Pegadaian berapa?">
+                Kontak
+              </div>
+            </div>
+
+            <div class="hint">
+              Tips: Tekan <b>Enter</b> untuk kirim, <b>Shift+Enter</b> untuk
+              baris baru.
+            </div>
+          </div>
+
+          <div class="block">
+            <h3>Mode Jawaban</h3>
+            <p>
+              Bot akan memberi jawaban + <b>tag</b> (intent). Kamu bisa kasih
+              feedback 👍/👎 untuk evaluasi.
+            </p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Chat -->
+      <main class="chat">
+        <div class="chatHeader">
+          <div class="chatTitle">
+            <strong>Chat Pegadaian</strong>
+            <span id="subtitle"
+              >Tanya seputar gadai, Tabungan Emas, Cicil Emas, dan layanan
+              lainnya</span
+            >
+          </div>
+          <div class="toolbar">
+            <button class="btn" id="btnExample">Contoh</button>
+            <button class="btn danger" id="btnClear">Clear</button>
+          </div>
+        </div>
+
+        <div class="chatBody" id="chatBody" aria-live="polite"></div>
+
+        <div class="composer">
+          <div class="inputWrap">
+            <textarea
+              id="input"
+              placeholder="Tulis pertanyaan... (misal: cara gadai emas? atau tabungan emas itu apa?)"
+            ></textarea>
+          </div>
+          <button class="send" id="sendBtn">Kirim</button>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      // ============================
+      // CONFIG
+      // ============================
+      const USE_API = true;
+      const API_URL = "https://uas-datamining.romantechno.online/chat";
+
+      // 👉 Logo Pegadaian:
+      // 1) Cara paling aman: upload file logo ke repo GitHub Pages kamu, mis. /assets/logo-pegadaian.png
+      // 2) Lalu set LOGO_URL = "./assets/logo-pegadaian.png"
+      //
+      // NOTE: Jangan ambil random URL internet kalau takut kena CORS/hotlink.
+      const LOGO_URL = "./assets/logo-pegadaian.png";
+
+      const chatBody = document.getElementById("chatBody");
+      const input = document.getElementById("input");
+      const sendBtn = document.getElementById("sendBtn");
+      const subtitle = document.getElementById("subtitle");
+
+      // Set logo
+      const brandLogo = document.getElementById("brandLogo");
+      brandLogo.src = LOGO_URL;
+      brandLogo.onerror = () => {
+        // fallback: kalau logo belum ada, tampilkan inisial
+        brandLogo.style.display = "none";
+        const wrap = brandLogo.parentElement;
+        wrap.innerHTML =
+          "<span style='font-weight:900;color:rgba(11,43,26,.75)'>PG</span>";
+      };
+
+      // Fallback "demo response" (biar UI tetap hidup walau backend down)
+      function localDemoAnswer(q) {
+        const t = q.toLowerCase();
+
+        if (
+          /(assalamualaikum|assalamu|waalaikumsalam|salam|halo|hai|p|punten)/.test(
+            t
+          )
+        )
+          return "[salam] Halo! Selamat datang di layanan virtual Pegadaian. Ada yang bisa kami bantu?";
+
+        if (/(gadai).*emas|emas.*gadai/.test(t))
+          return "[gadai_emas] Anda bisa gadai emas dengan membawa KTP dan emas ke outlet Pegadaian untuk penaksiran.";
+
+        if (/(syarat|dokumen).*gadai|ktp/.test(t))
+          return "[syarat_gadai] Umumnya syarat gadai: KTP asli dan barang jaminan. Untuk kendaraan biasanya perlu dokumen tambahan.";
+
+        if (/(tebus|pelunasan)/.test(t))
+          return "[tebus_gadai] Barang dapat ditebus dengan melunasi pinjaman pokok dan sewa modal/biaya sesuai ketentuan.";
+
+        if (/(perpanjang|perpanjangan|jatuh tempo)/.test(t))
+          return "[perpanjang_gadai] Perpanjang gadai dapat dilakukan dengan membayar sewa modal sebelum jatuh tempo.";
+
+        if (/(tabungan emas|nabung emas)/.test(t))
+          return "[tabungan_emas] Tabungan Emas adalah layanan menabung emas mulai dari nominal kecil di Pegadaian.";
+
+        if (/(cicil emas|angsuran emas)/.test(t))
+          return "[cicil_emas] Pegadaian menyediakan Cicil Emas dengan tenor tertentu. Simulasi dapat dicek di outlet atau aplikasi Pegadaian Digital.";
+
+        if (/(call center|kontak|nomor)/.test(t))
+          return "[kontak] Call center Pegadaian: 1500-569.";
+
+        return "[fallback] Maaf, saya belum menemukan jawaban yang pas. Coba pakai kata kunci: gadai, tebus, perpanjang, tabungan emas, cicil emas, kontak.";
+      }
+
+      // ============================
+      // UI HELPERS
+      // ============================
+      function nowTime() {
+        const d = new Date();
+        return d.toLocaleTimeString("id-ID", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+      }
+
+      function scrollToBottom() {
+        chatBody.scrollTop = chatBody.scrollHeight;
+      }
+
+      function addMessage({
+        role,
+        text,
+        label = null,
+        confidence = null,
+        showActions = false,
+      }) {
+        const wrap = document.createElement("div");
+        wrap.className = `msg ${role === "user" ? "me" : "bot"}`;
+
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.textContent = role === "user" ? "" : "PGD";
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.textContent = text;
+
+        const meta = document.createElement("div");
+        meta.className = "meta";
+
+        const time = document.createElement("span");
+        time.textContent = nowTime();
+        meta.appendChild(time);
+
+        if (label) {
+          const b = document.createElement("span");
+          b.className = "badge";
+          b.textContent = label;
+          meta.appendChild(b);
+        }
+
+        if (confidence !== null) {
+          const b = document.createElement("span");
+          b.className = "badge";
+          b.textContent = `conf: ${Math.round(confidence * 100)}%`;
+          meta.appendChild(b);
+        }
+
+        if (showActions) {
+          const actions = document.createElement("div");
+          actions.className = "actions";
+
+          const up = document.createElement("span");
+          up.className = "action";
+          up.textContent = "👍";
+          up.title = "Jawaban membantu";
+          up.onclick = () => toast("Terima kasih! Feedback 👍 tercatat.");
+
+          const down = document.createElement("span");
+          down.className = "action";
+          down.textContent = "👎";
+          down.title = "Jawaban kurang pas";
+          down.onclick = () => toast("Siap! Feedback 👎 tercatat.");
+
+          actions.appendChild(up);
+          actions.appendChild(down);
+          meta.appendChild(actions);
+        }
+
+        const bubbleWrap = document.createElement("div");
+        bubbleWrap.appendChild(bubble);
+        bubbleWrap.appendChild(meta);
+
+        wrap.appendChild(avatar);
+        wrap.appendChild(bubbleWrap);
+
+        chatBody.appendChild(wrap);
+        scrollToBottom();
+      }
+
+      function addTyping() {
+        const wrap = document.createElement("div");
+        wrap.className = "msg bot";
+        wrap.id = "typingRow";
+
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.textContent = "PGD";
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.innerHTML = `<span class="typing"><i></i><i></i><i></i></span>`;
+
+        wrap.appendChild(avatar);
+        wrap.appendChild(bubble);
+        chatBody.appendChild(wrap);
+        scrollToBottom();
+      }
+      function removeTyping() {
+        const el = document.getElementById("typingRow");
+        if (el) el.remove();
+      }
+
+      function toast(msg) {
+        subtitle.textContent = msg;
+        setTimeout(
+          () =>
+            (subtitle.textContent =
+              "Tanya seputar gadai, Tabungan Emas, Cicil Emas, dan layanan lainnya"),
+          2200
+        );
+      }
+
+      function parseLabel(text) {
+        // format: [tag] isi...
+        const m = text.match(/^\[(.+?)\]\s*(.*)$/);
+        if (!m) return { label: null, body: text };
+        return { label: m[1], body: m[2] };
+      }
+
+      // ============================
+      // API CALL
+      // ============================
+      async function askApi(question) {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ message: question }),
+        });
+
+        if (!res.ok) {
+          const txt = await res.text().catch(() => "");
+          throw new Error("API error: " + res.status + " " + txt.slice(0, 200));
+        }
+        return await res.json();
+      }
+
+      async function onSend() {
+        const q = input.value.trim();
+        if (!q) return;
+
+        addMessage({ role: "user", text: q });
+        input.value = "";
+        input.style.height = "40px";
+        sendBtn.disabled = true;
+
+        addTyping();
+
+        try {
+          let answerText, confidence;
+
+          if (USE_API) {
+            const data = await askApi(q);
+            answerText = data.answer ?? "Maaf, tidak ada jawaban.";
+            confidence =
+              typeof data.confidence === "number" ? data.confidence : null;
+          } else {
+            await new Promise((r) => setTimeout(r, 550));
+            answerText = localDemoAnswer(q);
+            confidence = null;
+          }
+
+          removeTyping();
+
+          const { label, body } = parseLabel(answerText);
+          addMessage({
+            role: "bot",
+            text: body,
+            label: label,
+            confidence: confidence,
+            showActions: true,
+          });
+        } catch (e) {
+          removeTyping();
+          addMessage({
+            role: "bot",
+            text: "Error: " + (e?.message || e),
+            label: "error",
+            showActions: false,
+          });
+        } finally {
+          sendBtn.disabled = false;
+        }
+      }
+
+      // auto-resize textarea
+      input.addEventListener("input", () => {
+        input.style.height = "40px";
+        input.style.height = Math.min(input.scrollHeight, 140) + "px";
+      });
+
+      // Enter to send
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+          e.preventDefault();
+          onSend();
+        }
+      });
+
+      sendBtn.addEventListener("click", onSend);
+
+      // chips click
+      document.getElementById("chips").addEventListener("click", (e) => {
+        const chip = e.target.closest(".chip");
+        if (!chip) return;
+        input.value = chip.dataset.q;
+        input.focus();
+        input.dispatchEvent(new Event("input"));
+      });
+
+      // clear
+      document.getElementById("btnClear").addEventListener("click", () => {
+        chatBody.innerHTML = "";
+        greet();
+      });
+
+      // examples
+      document.getElementById("btnExample").addEventListener("click", () => {
+        addMessage({
+          role: "user",
+          text: "Assalamualaikum, cara gadai emas gimana?",
+        });
+        addTyping();
+        setTimeout(() => {
+          removeTyping();
+          const ans =
+            "[gadai_emas] Anda bisa gadai emas dengan membawa KTP dan emas ke outlet Pegadaian untuk penaksiran.";
+          const { label, body } = parseLabel(ans);
+          addMessage({ role: "bot", text: body, label, showActions: true });
+        }, 650);
+      });
+
+      function greet() {
+        addMessage({
+          role: "bot",
+          text: "Halo! Saya Asisten Pegadaian. Silakan tanya seputar gadai, tebus/perpanjang, Tabungan Emas, Cicil Emas, harga emas, atau kontak layanan.",
+          label: "welcome",
+          showActions: false,
+        });
+      }
+
+      greet();
+    </script>
+  </body>
+</html>
