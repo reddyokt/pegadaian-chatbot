@@ -308,6 +308,12 @@
         margin: 10px 0;
         align-items: flex-end;
       }
+      .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 12px;
+      }
       .avatar {
         width: 34px;
         height: 34px;
@@ -691,7 +697,13 @@
 
         const avatar = document.createElement("div");
         avatar.className = "avatar";
-        avatar.textContent = role === "user" ? "" : "PGD";
+
+        if (role !== "user") {
+          const img = document.createElement("img");
+          img.src = "./assets/asisten.png"; // ⬅️ path gambar kamu
+          img.alt = "Asisten Pegadaian";
+          avatar.appendChild(img);
+        }
 
         const bubble = document.createElement("div");
         bubble.className = "bubble";
@@ -757,7 +769,10 @@
 
         const avatar = document.createElement("div");
         avatar.className = "avatar";
-        avatar.textContent = "PGD";
+        const img = document.createElement("img");
+        img.src = "./assets/asisten.png";
+        img.alt = "Asisten Pegadaian";
+        avatar.appendChild(img);
 
         const bubble = document.createElement("div");
         bubble.className = "bubble";
