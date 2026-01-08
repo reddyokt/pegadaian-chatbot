@@ -859,10 +859,20 @@
           });
         } catch (e) {
           removeTyping();
+
+          let errorMessage =
+            "Mohon maaf, saat ini kami sedang offline. Silakan coba beberapa saat lagi.";
+
+          // Optional: kalau mau bedakan error selain fetch
+          if (e?.message && !/fetch|network|failed/i.test(e.message)) {
+            errorMessage =
+              "Terjadi gangguan sistem. Silakan coba kembali nanti.";
+          }
+
           addMessage({
             role: "bot",
-            text: "Error: " + (e?.message || e),
-            label: "error",
+            text: errorMessage,
+            label: "offline",
             showActions: false,
           });
         } finally {
